@@ -1,0 +1,12 @@
+.box {
+  height: 100px;
+  background: darkcyan;
+}
+
+.box span {
+  display: inline-block;
+  width: 50px;
+  background-color: darkgoldenrod;
+  color: #000;
+  scroll-behavior: auto;
+}
