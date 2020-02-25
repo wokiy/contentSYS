@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>边框渐变</title>
+    <style>
+        .box{
+            margin: 80px 30px;
+            width: 200px;
+            height: 200px;
+            position: relative;
+            background: #fff;
+            float: left;
+        }
+        .box:before{
+            content: '';
+            z-index: -1;
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            top: -10px;
+            left: -10px;
+            background-image: linear-gradient(90deg,yellow,gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        渐变边框实现
+    </div>
+</body>
+</html>
