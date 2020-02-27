@@ -321,15 +321,219 @@ _eventBus当项目较大，就容易造成难以维护的灾难_
 2. 发送事件
 > 两个兄弟组件 addNum.vue 和 showNum.vue 
 
+//father.vue 
+```
+    //父组件
+    <template>
+        <div class="father">
+            <add-num></add-num>
+            <show-num></show-num>
+        </div>
+    </template>
+    <script>
+        import addNum from "xxx/addNum.vue"
+        import showNum from "xxx/showNum.vue"
+        export default{
+            data(){
+                return {
+
+                }
+            },
+            components:{
+                addNum,
+                showNum
+            }
+        }
+    </script>    
+
+```
+
+//addNum.vue
+
 ```
     <template>
-        <div>
-            
+        <div class="addNUm">
+            <button @click="addOne">加1</button>
         </div>
     </template>
 
     <script>
+        import $bus from ".../eventBus";
+        export default{
+            data(){
+                return {
+                    num:0
+                }
+            },
+            methods:{
+                $bus.$emit('myEvent',num:this.num+1)
+            }
+        }
+    </script> 
 
-    </script>    
+```
 
+//showNum.vue
+
+```
+<template>
+        <div class="">
+            {{count}}
+        </div>
+    </template>
+
+    <script>
+        import {$bus} from "xxx/eventBus";
+        export default{
+            data(){
+                return {
+                    count:0
+                }
+            },
+            methods:{
+                $bus.$on('myEvent',param=>{
+                    this.count = this.count + param.num;
+                })
+            }
+        }
+    </script> 
+```
+
+_实现addNum组件和showNum组件中的求和结果展示_
+
+移除事件监听
+```
+    import {$bus} from "event-bus.js"
+    $bus.$off('myEvent',{});
+```
+
+
+## Vuex实现组件通信
+> Vuex是专为vue应用程序开发做数据的状态管理，采用集中式会话级别存储管理应用的所以组件的状态，并相应的规则保证以一种可预测的方式发生变化，vuex 解决了 多视图依赖同一状态和来自不同的视图需要变更同一状态的问题。让开发者聚焦于数据跟新而不是组件间的传递上。
+
+#### Vuex各个模块
+
+1. state: 用于数据的存储，是store中唯一数据源
+2. getters: 如vue中的计算属性一样，基于state数据的二次包装，常用于数据的筛选和多个数据的相关性计算
+3. mutations: 类似函数，改变state数据的唯一途径，且不能处理异步函数
+4. actions: 类似mutations，用于提交mutations来改变状态，而不是直接变更状态，可以包含任意异步操作
+5. modules: 类似命名空间，用于项目中将各个模块的状态分开定义和操作，便于维护。
+
+//父组件
+```
+ <template>
+        <div id="app">
+            <child-a></child-a>
+            <child-b></child-b>
+        </div>
+    </template>
+
+    <script>
+        import childA from "xxx";
+        import childB from "xxx";
+        export default{
+            data(){
+                return {
+                    
+                }
+            },
+            components:{
+                childA,
+                childB
+            }
+        }
+    </script> 
+```
+
+//子组件 childA
+
+```
+ <template>
+        <div class="childA">
+            <h1>childA</h1>
+            <button @click="transform">click for childB component show message</button>
+            <p>Get message from childB {{childBMessage}}</p>
+        </div>
+    </template>
+
+    <script>
+        export default{
+            data(){
+                return {
+                    childAMessage:"childA"
+                }
+            },
+            //vuex数据的变化获取一般和vue计算属性一起搭配
+            computed:{
+                childBMessage(){
+                    return this.$store.state.BMsg;
+                }
+            }
+            methods:{
+                transform(){
+                    this.$store.commit('receiveAMsg',{
+                        AMsg:this.childAMessage;
+                    })
+                }
+            }
+        }
+    </script> 
+```
+
+//子组件B
+```
+     <template>
+        <div class="childB">
+            <button @click="transform">click for childA component show message</button>
+            <p>Get message from childA {{childAMessage}}</p>
+        </div>
+    </template>
+
+    <script>
+        export default{
+            data(){
+                return {
+                    childBMessage:"childB"
+                }
+            },
+            computed:{
+                childAMessage(){
+                    return this.$store.state.BMsg;
+                }
+            },
+            methods:{
+                transform() {
+                    this.$store.commit('receiveBMsg',{
+                        //触发 receiveBMsg把组件childB的数据放到store中
+                        BMsg:this.childBMessage
+                    })
+                }
+            }
+        }
+    </script> 
+```
+
+//vuex的store.js
+```
+    import Vue from "vue";
+    import Vuex frm "vuex"
+    Vue.use(Vuex);
+
+    const state = {
+        AMsg:"",
+        BMsg:''
+    },
+    //提交改变state状态的步骤
+    const mutations = {
+        receiveAMsg(state,payload){
+            state.AMsg = payload.AMsg
+        },
+         receiveAMsg(state,payload){
+            state.BMsg = payload.BMsg
+        },
+    }
+    export default new Vuex.Store({
+        state,
+        mutations
+    })
 ```
